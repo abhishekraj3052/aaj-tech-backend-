@@ -7,6 +7,15 @@ import os
 
 app = FastAPI(title="Aaj Tech Trading API")
 
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Ensure uploads directory exists
 UPLOAD_PATH = os.path.abspath("uploads")
 if not os.path.exists(os.path.join(UPLOAD_PATH, "images")):
@@ -14,15 +23,6 @@ if not os.path.exists(os.path.join(UPLOAD_PATH, "images")):
 
 # Mount static files
 app.mount("/uploads", StaticFiles(directory=UPLOAD_PATH), name="uploads")
-
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, specify the frontend URL
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Include routers
 app.include_router(categories.router, prefix="/api/categories", tags=["Categories"])
