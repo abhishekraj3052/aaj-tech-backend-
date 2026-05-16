@@ -6,7 +6,7 @@ from datetime import datetime
 
 router = APIRouter()
 
-UPLOAD_DIR = os.path.abspath(os.path.join("uploads", "images"))
+UPLOAD_DIR = os.path.abspath("uploads")
 
 # Ensure upload directory exists
 if not os.path.exists(UPLOAD_DIR):
@@ -31,4 +31,4 @@ async def upload_image(request: Request, file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Failed to save image: {str(e)}")
 
     # Return the absolute URL
-    return {"url": f"http://localhost:8000/uploads/images/{unique_filename}"}
+    return {"url": f"https://aaj-tech-backend.onrender.com/uploads/{unique_filename}"}
