@@ -27,7 +27,8 @@ async def signup(request: SignupRequest, background_tasks: BackgroundTasks):
     
     # In a real app, you'd generate a secure token for password setting
     # For this demonstration, we'll use a mock reset link
-    reset_link = f"http://localhost:3000/set-password?email={request.email}&token=secure-token-123"
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
+    reset_link = f"{frontend_url}/set-password?email={request.email}&token=secure-token-123"
     
     result = db.users.insert_one(user_dict)
     

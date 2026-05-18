@@ -1,4 +1,5 @@
 import os
+import logging
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from pydantic import EmailStr
 from typing import List, Dict, Any
@@ -6,6 +7,10 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 load_dotenv()
+
+# Setup basic logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 conf = ConnectionConfig(
     MAIL_USERNAME=os.getenv("EMAIL_USER"),
@@ -86,15 +91,23 @@ async def send_enquiry_notification(admin_email: str, enquiry_data: Dict[str, An
     </html>
     """
     
-    message = MessageSchema(
-        subject=f"{title}: {enquiry_data.get('fullName')}",
-        recipients=[admin_email],
-        body=html,
-        subtype=MessageType.html
-    )
-    
-    fm = FastMail(conf)
-    await fm.send_message(message)
+    if not admin_email:
+        logger.warning("Admin email is not configured. Skipping enquiry notification.")
+        return
+
+    try:
+        message = MessageSchema(
+            subject=f"{title}: {enquiry_data.get('fullName')}",
+            recipients=[admin_email],
+            body=html,
+            subtype=MessageType.html
+        )
+        
+        fm = FastMail(conf)
+        await fm.send_message(message)
+        logger.info(f"Enquiry notification sent successfully to {admin_email}")
+    except Exception as e:
+        logger.error(f"Failed to send enquiry notification to {admin_email}: {str(e)}")
 
 async def send_auto_reply(user_email: str, enquiry_data: Dict[str, Any]):
     """Sends a confirmation email to the user who submitted the enquiry."""
@@ -132,15 +145,23 @@ async def send_auto_reply(user_email: str, enquiry_data: Dict[str, Any]):
     </html>
     """
     
-    message = MessageSchema(
-        subject=subject,
-        recipients=[user_email],
-        body=html,
-        subtype=MessageType.html
-    )
-    
-    fm = FastMail(conf)
-    await fm.send_message(message)
+    if not user_email:
+        logger.warning("User email is not provided. Skipping auto-reply.")
+        return
+
+    try:
+        message = MessageSchema(
+            subject=subject,
+            recipients=[user_email],
+            body=html,
+            subtype=MessageType.html
+        )
+        
+        fm = FastMail(conf)
+        await fm.send_message(message)
+        logger.info(f"Auto-reply email sent successfully to {user_email}")
+    except Exception as e:
+        logger.error(f"Failed to send auto-reply to {user_email}: {str(e)}")
 
 async def send_welcome_email(user_email: str, user_name: str, reset_link: str):
     """Sends a welcome email to a newly signed-up user."""
@@ -164,12 +185,20 @@ async def send_welcome_email(user_email: str, user_name: str, reset_link: str):
     </html>
     """
     
-    message = MessageSchema(
-        subject="Welcome to Aaj Tech Trading - Complete Your Setup",
-        recipients=[user_email],
-        body=html,
-        subtype=MessageType.html
-    )
-    
-    fm = FastMail(conf)
-    await fm.send_message(message)
+    if not user_email:
+        logger.warning("User email is not provided. Skipping welcome email.")
+        return
+
+    try:
+        message = MessageSchema(
+            subject="Welcome to Aaj Tech Trading - Complete Your Setup",
+            recipients=[user_email],
+            body=html,
+            subtype=MessageType.html
+        )
+        
+        fm = FastMail(conf)
+        await fm.send_message(message)
+        logger.info(f"Welcome email sent successfully to {user_email}")
+    except Exception as e:
+        logger.error(f"Failed to send welcome email to {user_email}: {str(e)}")
