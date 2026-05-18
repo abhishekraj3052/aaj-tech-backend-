@@ -6,3 +6,4 @@ pydantic
 dnspython
 python-multipart
 fastapi-mail
+cloudinary

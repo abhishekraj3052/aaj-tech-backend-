@@ -4,13 +4,20 @@ from fastapi.staticfiles import StaticFiles
 from routes import categories, products, blogs, enquiries, catalog, dashboard, clients, auth, uploads, harness
 import uvicorn
 import os
+import cloudinary
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(title="Aaj Tech Trading API")
 
-# Mount static files
-if not os.path.exists("uploads"):
-    os.makedirs("uploads", exist_ok=True)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+# Configure Cloudinary
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
+)
 
 # Configure CORS
 app.add_middleware(
