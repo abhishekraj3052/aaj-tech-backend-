@@ -17,10 +17,10 @@ conf = ConnectionConfig(
     MAIL_PASSWORD=os.getenv("EMAIL_PASS"),
     MAIL_FROM=os.getenv("EMAIL_FROM"),
     MAIL_PORT=int(os.getenv("EMAIL_PORT", 587)),
-    MAIL_SERVER=os.getenv("EMAIL_SERVER"),
+    MAIL_SERVER=os.getenv("EMAIL_SERVER", "smtp.gmail.com"),
     MAIL_FROM_NAME="Aaj Tech Trading",
-    MAIL_STARTTLS=True,
-    MAIL_SSL_TLS=False,
+    MAIL_STARTTLS=int(os.getenv("EMAIL_PORT", 587)) == 587,
+    MAIL_SSL_TLS=int(os.getenv("EMAIL_PORT", 587)) == 465,
     USE_CREDENTIALS=True,
     VALIDATE_CERTS=True
 )
