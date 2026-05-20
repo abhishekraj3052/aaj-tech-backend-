@@ -8,6 +8,7 @@ class CategoryBase(BaseModel):
     description: Optional[str] = None
     image: Optional[str] = None
     icon: Optional[str] = None
+    sequence: Optional[int] = 0
 
 class CategoryCreate(CategoryBase):
     pass
@@ -19,6 +20,7 @@ class CategoryResponse(BaseModel):
     description: Optional[str] = None
     image: Optional[str] = None
     icon: Optional[str] = None
+    sequence: int = 0
 
     model_config = {"from_attributes": True}
 
