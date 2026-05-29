@@ -6,30 +6,30 @@ import os
 router = APIRouter()
 
 @router.post("/upload")
-async def upload_catalog(file: UploadFile = File(...)):
+async def upload_ev_catalog(file: UploadFile = File(...)):
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
     
     try:
-        # Upload the PDF directly to Cloudinary as a raw file in chunked mode
+        # Upload the PDF directly to Cloudinary as a raw file in chunked mode in the ev_catalogs folder
         result = cloudinary.uploader.upload_large(
             file.file,
-            folder="aaj_tech/catalogs",
+            folder="aaj_tech/ev_catalogs",
             resource_type="raw",
             public_id=file.filename,
             chunk_size=6000000
         )
         return {"filename": file.filename, "status": "success", "url": result.get("secure_url")}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save catalog to Cloudinary: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to save EV catalog to Cloudinary: {str(e)}")
 
 @router.get("/")
-async def list_catalogs():
+async def list_ev_catalogs():
     try:
-        # Query Cloudinary for files in the aaj_tech/catalogs folder
+        # Query Cloudinary for files in the aaj_tech/ev_catalogs folder
         resources = cloudinary.api.resources(
             type="upload", 
-            prefix="aaj_tech/catalogs/", 
+            prefix="aaj_tech/ev_catalogs/", 
             resource_type="raw"
         )
         
@@ -40,7 +40,7 @@ async def list_catalogs():
             if filename.endswith('.pdf'):
                 catalogs.append({
                     "name": filename,
-                    "url": f"/api/catalog/download/{filename}"
+                    "url": f"/api/ev-catalog/download/{filename}"
                 })
         return catalogs
     except Exception as e:
@@ -48,7 +48,7 @@ async def list_catalogs():
         return []
 
 @router.get("/download/{filename}")
-async def get_catalog(filename: str):
+async def get_ev_catalog(filename: str):
     import cloudinary.utils
     from fastapi.responses import StreamingResponse
     import os
@@ -58,7 +58,7 @@ async def get_catalog(filename: str):
         if not cloud_name:
             raise HTTPException(status_code=500, detail="Cloudinary configuration missing")
             
-        public_id = f"aaj_tech/catalogs/{filename}"
+        public_id = f"aaj_tech/ev_catalogs/{filename}"
         url, _ = cloudinary.utils.cloudinary_url(
             public_id,
             resource_type="raw",

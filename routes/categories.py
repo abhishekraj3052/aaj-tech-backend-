@@ -7,15 +7,17 @@ from bson import ObjectId
 
 router = APIRouter()
 
-def category_helper(cat, db=None) -> dict:
+def category_helper(cat, db=None, counts_map=None) -> dict:
     """Convert MongoDB document to a clean dict with string id."""
     count = cat.get("count", 0)
-    if db is not None:
-        cat_id = str(cat["_id"])
+    cat_id = str(cat["_id"])
+    if counts_map is not None:
+        count = counts_map.get(cat_id, 0)
+    elif db is not None:
         count = db.products.count_documents({"category_id": cat_id})
 
     return {
-        "id": str(cat["_id"]),
+        "id": cat_id,
         "name": cat["name"],
         "count": count,
         "description": cat.get("description", None),
@@ -28,7 +30,15 @@ def category_helper(cat, db=None) -> dict:
 def get_categories():
     db = get_db()
     categories = list(db.categories.find().sort("sequence", 1))
-    return [category_helper(cat, db) for cat in categories]
+    
+    # Precompute product counts per category in one query
+    pipeline = [
+        {"$group": {"_id": "$category_id", "count": {"$sum": 1}}}
+    ]
+    counts = list(db.products.aggregate(pipeline))
+    counts_map = {str(item["_id"]): item["count"] for item in counts if item["_id"] is not None}
+    
+    return [category_helper(cat, db, counts_map) for cat in categories]
 
 @router.post("/", response_model=CategoryResponse)
 def create_category(category: CategoryCreate):

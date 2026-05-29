@@ -109,3 +109,18 @@ class HarnessProductCreate(HarnessProductBase):
 class HarnessProductResponse(HarnessProductBase):
     id: str
     model_config = {"from_attributes": True}
+
+class EVProductBase(BaseModel):
+    title: str
+    applications: Optional[str] = None
+    details: Optional[str] = None
+    variants: Optional[List[str]] = []
+    image: Optional[str] = None
+
+class EVProductCreate(EVProductBase):
+    pass
+
+class EVProductResponse(EVProductBase):
+    id: str
+    model_config = {"from_attributes": True}
+
