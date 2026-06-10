@@ -12,15 +12,19 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+email_port = int(os.getenv("EMAIL_PORT", 465))
+use_starttls = email_port == 587
+use_ssl = email_port == 465
+
 conf = ConnectionConfig(
     MAIL_USERNAME=os.getenv("EMAIL_USER"),
     MAIL_PASSWORD=os.getenv("EMAIL_PASS"),
     MAIL_FROM=os.getenv("EMAIL_FROM"),
-    MAIL_PORT=465,
-    MAIL_SERVER="smtp.gmail.com",
+    MAIL_PORT=email_port,
+    MAIL_SERVER=os.getenv("EMAIL_SERVER", "smtp.gmail.com"),
     MAIL_FROM_NAME="Aaj Tech Trading",
-    MAIL_STARTTLS=False,
-    MAIL_SSL_TLS=True,
+    MAIL_STARTTLS=use_starttls,
+    MAIL_SSL_TLS=use_ssl,
     USE_CREDENTIALS=True,
     VALIDATE_CERTS=True
 )
