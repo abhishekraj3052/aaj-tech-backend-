@@ -7,3 +7,8 @@ dnspython
 python-multipart
 fastapi-mail
 cloudinary
+chromadb
+sentence-transformers
+pypdf
+transformers
+torch
