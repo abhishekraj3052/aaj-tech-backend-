@@ -124,3 +124,62 @@ class EVProductResponse(EVProductBase):
     id: str
     model_config = {"from_attributes": True}
 
+
+class JobBase(BaseModel):
+    title: str
+    department: str
+    location: str
+    experience: str
+    employmentType: str
+    salary: Optional[str] = None
+    description: str
+    status: str = "active"
+
+class JobCreate(JobBase):
+    pass
+
+class JobResponse(JobBase):
+    id: str
+    createdAt: Optional[datetime] = None
+    updatedAt: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
+
+
+class CareerApplicationBase(BaseModel):
+    name: str
+    email: str
+    phone: str
+    department: Optional[str] = None
+    position: str
+    experience: str
+    currentCTC: str
+    expectedCTC: str
+    resume: str
+    message: Optional[str] = None
+    status: str = "Applied"
+
+class CareerApplicationCreate(CareerApplicationBase):
+    pass
+
+class CareerApplicationResponse(CareerApplicationBase):
+    id: str
+    createdAt: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
+
+
+class DepartmentBase(BaseModel):
+    name: str
+
+class DepartmentCreate(DepartmentBase):
+    pass
+
+class DepartmentResponse(DepartmentBase):
+    id: str
+    createdAt: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
+
+
+

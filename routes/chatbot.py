@@ -173,10 +173,12 @@ async def list_documents():
     try:
         docs = []
         for doc in db.chatbot_documents.find().sort("uploadDate", -1):
+            upload_dt = doc.get("uploadDate")
+            upload_date_str = upload_dt.isoformat() if isinstance(upload_dt, datetime) else str(upload_dt or "N/A")
             docs.append({
                 "id": str(doc["_id"]),
                 "filename": doc["filename"],
-                "uploadDate": doc["uploadDate"].isoformat() if isinstance(doc["uploadDate"], datetime) else str(doc["uploadDate"]),
+                "uploadDate": upload_date_str,
                 "size": doc.get("size", 0),
                 "chunkCount": doc.get("chunkCount", 0)
             })

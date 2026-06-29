@@ -484,7 +484,7 @@ class RagEngine:
                                 reply = f"Based on our blog post **\"{metas[idx].get('name')}\"**:\n\n{doc}"
                                 suggestions = ["Ask something else", "Connect on WhatsApp"]
                             elif source_type == "pdf":
-                                reply = f"According to catalog reference **{metas[idx].get('name')}**:\n\n{doc}"
+                                reply = doc
                                 suggestions = ["Request a Quote", "Ask something else", "Chat on WhatsApp"]
                             else:
                                 reply = doc
@@ -810,7 +810,7 @@ class RagEngine:
                         reply = f"Based on our blog post **\"{entity_name}\"**:\n\n{best_doc}"
                         suggestions = ["Ask something else", "Connect on WhatsApp"]
                     elif source_type == "pdf":
-                        reply = f"According to catalog reference **{entity_name}**:\n\n{best_doc}"
+                        reply = best_doc
                         suggestions = ["Request a Quote", "Ask something else", "Chat on WhatsApp"]
                     else:
                         reply = best_doc
@@ -872,9 +872,16 @@ class RagEngine:
                     "view products", "what products", "products", "show me the product",
                     "show me the products", "show me product", "show me products", "show product",
                     "list product", "view product", "product", "all products", "all product",
-                    "show all products", "show all product", "all categories", "show all categories"
+                    "show all products", "show all product", "all categories", "show all categories",
+                    "show items", "show item", "list items", "list item", "view items", "view item",
+                    "all items", "all item", "show all items", "show all item",
+                    "show me the item", "show me the items", "show me item", "show me items", "show me your items", "show me your item",
+                    "what items", "what item", "items offered", "item offered",
+                    "types of items", "types of item", "kinds of items", "kinds of item",
+                    "item range", "item ranges", "range of items", "range of item",
+                    "items", "item"
                 ]
-                if any(intent_kw in query_clean for intent_kw in category_intents) or query_clean in ["categories", "products", "product"]:
+                if any(intent_kw in query_clean for intent_kw in category_intents) or query_clean in ["categories", "products", "product", "items", "item"]:
                     try:
                         cats = list(db.categories.find().sort("sequence", 1))
                         if cats:
@@ -913,9 +920,16 @@ class RagEngine:
                         "product range", "product ranges", "range of products", "show me the product",
                         "show me the products", "show me product", "show me products", "show product",
                         "list product", "view product", "product", "all products", "all product",
-                        "show all products", "show all product", "all categories", "show all categories"
+                        "show all products", "show all product", "all categories", "show all categories",
+                        "show items", "show item", "list items", "list item", "view items", "view item",
+                        "all items", "all item", "show all items", "show all item",
+                        "show me the item", "show me the items", "show me item", "show me items", "show me your items", "show me your item",
+                        "what items", "what item", "items offered", "item offered",
+                        "types of items", "types of item", "kinds of items", "kinds of item",
+                        "item range", "item ranges", "range of items", "range of item",
+                        "items", "item"
                     ]
-                    if any(intent_kw in query_clean for intent_kw in product_intents) or query_clean in ["products", "product"]:
+                    if any(intent_kw in query_clean for intent_kw in product_intents) or query_clean in ["products", "product", "items", "item"]:
                         try:
                             cats = list(db.categories.find().sort("sequence", 1))
                             if cats:
@@ -1096,7 +1110,7 @@ class RagEngine:
                                 reply = f"Based on our blog post **\"{entity_name}\"**:\n\n{best_doc}"
                                 suggestions = ["Ask something else", "Connect on WhatsApp"]
                             elif source_type == "pdf":
-                                reply = f"According to catalog reference **{entity_name}**:\n\n{best_doc}"
+                                reply = best_doc
                                 suggestions = ["Request a Quote", "Ask something else", "Chat on WhatsApp"]
                                 faq_count = 1
                             else:
