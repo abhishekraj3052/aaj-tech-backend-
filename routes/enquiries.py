@@ -6,6 +6,7 @@ from bson import ObjectId
 from pydantic import BaseModel, Field
 import os
 from utils.email import send_enquiry_notification, send_auto_reply
+from utils.auth import require_admin
 
 router = APIRouter()
 db = get_db()
@@ -50,7 +51,7 @@ def get_enquiries():
     return enquiries
 
 @router.put("/{enquiry_id}/status", response_model=dict)
-def update_enquiry_status(enquiry_id: str, status: str):
+def update_enquiry_status(enquiry_id: str, status: str, admin: dict = Depends(require_admin)):
     result = db.enquiries.update_one(
         {"_id": ObjectId(enquiry_id)},
         {"$set": {"status": status}}
@@ -60,7 +61,7 @@ def update_enquiry_status(enquiry_id: str, status: str):
     return {"message": "Status updated successfully"}
 
 @router.delete("/{enquiry_id}", response_model=dict)
-def delete_enquiry(enquiry_id: str):
+def delete_enquiry(enquiry_id: str, admin: dict = Depends(require_admin)):
     result = db.enquiries.delete_one({"_id": ObjectId(enquiry_id)})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Enquiry not found")

@@ -1,12 +1,13 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 import cloudinary.uploader
 import cloudinary.api
 import os
+from utils.auth import require_admin
 
 router = APIRouter()
 
 @router.post("/upload")
-async def upload_catalog(file: UploadFile = File(...)):
+async def upload_catalog(file: UploadFile = File(...), admin: dict = Depends(require_admin)):
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
     

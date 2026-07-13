@@ -20,9 +20,17 @@ cloudinary.config(
 )
 
 # Configure CORS
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
+origins = [
+    FRONTEND_URL,
+    "https://aaj-tech.vercel.app",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

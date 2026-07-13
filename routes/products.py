@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from database import get_db
 from models import ProductResponse, ProductCreate
 from bson import ObjectId
+from utils.auth import require_admin
 
 router = APIRouter()
 
@@ -39,7 +40,7 @@ def get_product(product_id: str):
     return product_helper(prod)
 
 @router.post("/", response_model=ProductResponse)
-def create_product(product: ProductCreate):
+def create_product(product: ProductCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     product_dict = product.model_dump()
     result = db.products.insert_one(product_dict)
@@ -47,7 +48,7 @@ def create_product(product: ProductCreate):
     return product_helper(product_dict)
 
 @router.delete("/{product_id}")
-def delete_product(product_id: str):
+def delete_product(product_id: str, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(product_id):
         raise HTTPException(status_code=400, detail="Invalid product ID")
@@ -57,7 +58,7 @@ def delete_product(product_id: str):
     return {"message": "Product deleted successfully"}
 
 @router.put("/{product_id}", response_model=ProductResponse)
-def update_product(product_id: str, product: ProductCreate):
+def update_product(product_id: str, product: ProductCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(product_id):
         raise HTTPException(status_code=400, detail="Invalid product ID")

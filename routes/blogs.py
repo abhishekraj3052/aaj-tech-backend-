@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from database import get_db
 from models import BlogResponse, BlogCreate
 from bson import ObjectId
+from utils.auth import require_admin
 
 router = APIRouter()
 
@@ -37,7 +38,7 @@ def get_blog(blog_id: str):
     return blog_helper(blog)
 
 @router.post("/", response_model=BlogResponse)
-def create_blog(blog: BlogCreate):
+def create_blog(blog: BlogCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     blog_dict = blog.model_dump()
     result = db.blogs.insert_one(blog_dict)
@@ -45,7 +46,7 @@ def create_blog(blog: BlogCreate):
     return blog_helper(blog_dict)
 
 @router.put("/{blog_id}", response_model=BlogResponse)
-def update_blog(blog_id: str, blog: BlogCreate):
+def update_blog(blog_id: str, blog: BlogCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(blog_id):
         raise HTTPException(status_code=400, detail="Invalid blog ID")
@@ -63,7 +64,7 @@ def update_blog(blog_id: str, blog: BlogCreate):
     return blog_helper(blog_dict)
 
 @router.delete("/{blog_id}")
-def delete_blog(blog_id: str):
+def delete_blog(blog_id: str, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(blog_id):
         raise HTTPException(status_code=400, detail="Invalid blog ID")

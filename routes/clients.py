@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from database import get_db
 from models import ClientResponse, ClientCreate
 from bson import ObjectId
+from utils.auth import require_admin
 
 router = APIRouter()
 
@@ -36,7 +37,7 @@ def get_client(client_id: str):
     return client_helper(client)
 
 @router.post("/", response_model=ClientResponse)
-def create_client(client: ClientCreate):
+def create_client(client: ClientCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     client_dict = client.model_dump()
     result = db.clients.insert_one(client_dict)
@@ -44,7 +45,7 @@ def create_client(client: ClientCreate):
     return client_helper(client_dict)
 
 @router.put("/{client_id}", response_model=ClientResponse)
-def update_client(client_id: str, client: ClientCreate):
+def update_client(client_id: str, client: ClientCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(client_id):
         raise HTTPException(status_code=400, detail="Invalid client ID")
@@ -62,7 +63,7 @@ def update_client(client_id: str, client: ClientCreate):
     return client_helper(updated_client)
 
 @router.delete("/{client_id}")
-def delete_client(client_id: str):
+def delete_client(client_id: str, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(client_id):
         raise HTTPException(status_code=400, detail="Invalid client ID")

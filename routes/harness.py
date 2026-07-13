@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from database import get_db
 from models import HarnessProductResponse, HarnessProductCreate
 from bson import ObjectId
+from utils.auth import require_admin
 
 router = APIRouter()
 
@@ -34,7 +35,7 @@ def get_harness_product(id: str):
     return harness_helper(item)
 
 @router.post("/", response_model=HarnessProductResponse)
-def create_harness_product(item: HarnessProductCreate):
+def create_harness_product(item: HarnessProductCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     item_dict = item.model_dump()
     result = db.harness_products.insert_one(item_dict)
@@ -42,7 +43,7 @@ def create_harness_product(item: HarnessProductCreate):
     return harness_helper(item_dict)
 
 @router.delete("/{id}")
-def delete_harness_product(id: str):
+def delete_harness_product(id: str, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(id):
         raise HTTPException(status_code=400, detail="Invalid ID")
@@ -52,7 +53,7 @@ def delete_harness_product(id: str):
     return {"message": "Harness Product deleted successfully"}
 
 @router.put("/{id}", response_model=HarnessProductResponse)
-def update_harness_product(id: str, item: HarnessProductCreate):
+def update_harness_product(id: str, item: HarnessProductCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(id):
         raise HTTPException(status_code=400, detail="Invalid ID")

@@ -1,11 +1,12 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Request
+from fastapi import APIRouter, UploadFile, File, HTTPException, Request, Depends
 import cloudinary.uploader
 import os
+from utils.auth import require_admin
 
 router = APIRouter()
 
 @router.post("/image")
-async def upload_image(request: Request, file: UploadFile = File(...)):
+async def upload_image(request: Request, file: UploadFile = File(...), admin: dict = Depends(require_admin)):
     # Basic validation to ensure it's an image
     if not file.content_type.startswith("image/") and file.content_type != "application/octet-stream":
         raise HTTPException(status_code=400, detail=f"Invalid file type ({file.content_type}). Please upload an image.")

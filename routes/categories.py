@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from pydantic import BaseModel
 from database import get_db
 from models import CategoryResponse, CategoryCreate
 from bson import ObjectId
+from utils.auth import require_admin
 
 router = APIRouter()
 
@@ -41,7 +42,7 @@ def get_categories():
     return [category_helper(cat, db, counts_map) for cat in categories]
 
 @router.post("/", response_model=CategoryResponse)
-def create_category(category: CategoryCreate):
+def create_category(category: CategoryCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     category_dict = category.model_dump()
     result = db.categories.insert_one(category_dict)
@@ -49,7 +50,7 @@ def create_category(category: CategoryCreate):
     return category_helper(category_dict, db)
 
 @router.delete("/{category_id}")
-def delete_category(category_id: str):
+def delete_category(category_id: str, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(category_id):
         raise HTTPException(status_code=400, detail="Invalid category ID")
@@ -62,7 +63,7 @@ class ReorderRequest(BaseModel):
     category_ids: List[str]
 
 @router.put("/reorder")
-def reorder_categories(request: ReorderRequest):
+def reorder_categories(request: ReorderRequest, admin: dict = Depends(require_admin)):
     db = get_db()
     for index, cat_id in enumerate(request.category_ids):
         if ObjectId.is_valid(cat_id):
@@ -73,7 +74,7 @@ def reorder_categories(request: ReorderRequest):
     return {"message": "Categories reordered successfully"}
 
 @router.put("/{category_id}", response_model=CategoryResponse)
-def update_category(category_id: str, category: CategoryCreate):
+def update_category(category_id: str, category: CategoryCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(category_id):
         raise HTTPException(status_code=400, detail="Invalid category ID")

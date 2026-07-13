@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 from typing import List, Optional
 from database import get_db
 from models import (
@@ -9,6 +9,7 @@ from models import (
 from bson import ObjectId
 from datetime import datetime
 import cloudinary.uploader
+from utils.auth import require_admin
 
 router = APIRouter()
 
@@ -134,7 +135,7 @@ def get_jobs(active_only: bool = False):
     return [job_helper(job) for job in jobs]
 
 @router.post("/jobs", response_model=JobResponse)
-def create_job(job: JobCreate):
+def create_job(job: JobCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     job_dict = job.model_dump()
     job_dict["createdAt"] = datetime.now()
@@ -144,7 +145,7 @@ def create_job(job: JobCreate):
     return job_helper(job_dict)
 
 @router.put("/jobs/{job_id}", response_model=JobResponse)
-def update_job(job_id: str, job: JobCreate):
+def update_job(job_id: str, job: JobCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(job_id):
         raise HTTPException(status_code=400, detail="Invalid job ID")
@@ -171,7 +172,7 @@ def update_job(job_id: str, job: JobCreate):
     return job_helper(job_dict)
 
 @router.delete("/jobs/{job_id}")
-def delete_job(job_id: str):
+def delete_job(job_id: str, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(job_id):
         raise HTTPException(status_code=400, detail="Invalid job ID")
@@ -198,7 +199,7 @@ def get_applications():
     return [application_helper(app) for app in apps]
 
 @router.put("/applications/{app_id}/status", response_model=CareerApplicationResponse)
-def update_application_status(app_id: str, status: str):
+def update_application_status(app_id: str, status: str, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(app_id):
         raise HTTPException(status_code=400, detail="Invalid application ID")
@@ -219,7 +220,7 @@ def update_application_status(app_id: str, status: str):
     return application_helper(updated_app)
 
 @router.delete("/applications/{app_id}")
-def delete_application(app_id: str):
+def delete_application(app_id: str, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(app_id):
         raise HTTPException(status_code=400, detail="Invalid application ID")
@@ -285,7 +286,7 @@ def get_departments():
     return [department_helper(d) for d in departments]
 
 @router.post("/departments", response_model=DepartmentResponse)
-def create_department(dept: DepartmentCreate):
+def create_department(dept: DepartmentCreate, admin: dict = Depends(require_admin)):
     db = get_db()
     
     # Check if department already exists (case-insensitive)
@@ -300,7 +301,7 @@ def create_department(dept: DepartmentCreate):
     return department_helper(dept_dict)
 
 @router.delete("/departments/{dept_id}")
-def delete_department(dept_id: str):
+def delete_department(dept_id: str, admin: dict = Depends(require_admin)):
     db = get_db()
     if not ObjectId.is_valid(dept_id):
         raise HTTPException(status_code=400, detail="Invalid department ID")

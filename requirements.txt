@@ -7,3 +7,4 @@ dnspython
 python-multipart
 fastapi-mail
 cloudinary
+pyjwt
